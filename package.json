@@ -1,0 +1,31 @@
+{
+  "name": "automacao-demosite-playwright-api",
+  "version": "1.0.0",
+  "description": "Projeto de automação backend utilizando as APIs do Book Store do Demo Site usando Playwright e JS.",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "report": "playwright show-report"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tiagofreitassp/automacao-demosite-playwright-api.git"
+  },
+  "keywords": [],
+  "author": "Tiago Freitas - DEV",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/tiagofreitassp/automacao-demosite-playwright-api/issues"
+  },
+  "homepage": "https://github.com/tiagofreitassp/automacao-demosite-playwright-api#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.2"
+  },
+  "dependencies": {
+    "convert-array-to-csv": "^2.0.0",
+    "dotenv": "^18.0.3",
+    "playwright": "^1.63.0",
+    "xlsx": "^0.18.5"
+  }
+}
