@@ -52,39 +52,13 @@ Na primeira coluna, a Executar, você deve inserir Sim ou Nao(sem acentos) para 
 
 Por padrão, o Playwright irá executar os testes em paralelo, para remover esta opção, abra o arquivo playwright.config.ts e na linha fullyParallel troque o TRUE para FALSE.
 
-Executar todos os testes em modo Headless(sem abrir o navegador):
+Executar todos os testes:
 
 * npx playwright test
 
-Executar todos os testes com o navegador visível:
+Executar um teste especifico:
 
-* npx playwright test --headed
-
-Executar todos os testes com um navegador especifico em modo Headless:
-
-* npx playwright test --project chromium
-* npx playwright test --project firefox
-* npx playwright test --project webkit
-* npx playwright test --project edge
-
-Executar todos os testes com o navegador visível e com um navegador especifico:
-
-* npx playwright test --headed --project chromium
-* npx playwright test --headed --project firefox
-* npx playwright test --headed --project webkit
-* npx playwright test --headed --project edge
-
-Executar um teste especifico com navegador visível:
-
-* npx playwright test example.spec.js --headed --project chromium
-* npx playwright test ct01-recalcular-orcamento-premio.spec.js --headed --project chromium
-* npx playwright test ct02-criar-orcamento-premio.spec.js --headed --project chromium
-
-Executar um teste especifico sem navegador visível:
-
-* npx playwright test example.spec.js --project chromium
-* npx playwright test ct01-recalcular-orcamento-premio.spec.js --project chromium
-* npx playwright test ct02-criar-orcamento-premio.spec.js --project chromium
+* npx playwright test example.spec.js
 
 ## Execuções com falhas
 
