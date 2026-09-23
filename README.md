@@ -42,8 +42,6 @@ Abra o terminal interno do Visual Studio Code ou do Sistema Operacional(vá até
 
 ## Massas
 
-Não utilize o usuário e a senha na planilha pois a mesma pode estar inutilizada. Crie a mesma na página da Book Store do Demo Site.
-
 A planilha com as massas está dentro da pasta test-data.
 
 Caso queira inserir mais casos de testes, copie uma linha inteira e cole na debaixo, altere as celulas de acordo com os dados de massas que desejar. Lembrando que não adicione colunas, pois a automação obtem os dados das colunas na ordem, caso seja alguma adicionada ou removida, irá afetar os testes. Solicitar a quem desenvolveu a automação para adequar a mudança.
