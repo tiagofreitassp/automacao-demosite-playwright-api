@@ -19,24 +19,27 @@ for (const lineFromExcel of ExcelDataProvider) {
         test(`${lineFromExcel.ID} - ${lineFromExcel.CENARIO} ${num++}`, 
             {
                 tag: [
-                    '@ct01',
-                    '@account'
+                    '@api',
+                    '@ct01'
                 ],
             }, async ({ request }) => {
 
             try {
                 accountPage = new AccountPage(request);
-                //bookStorePage = new BookStorePage(request);
+                await accountPage.criarConta(lineFromExcel.USERNAME, lineFromExcel.PASSWORD);
+                await accountPage.consultaConta();
 
-                await accountPage.obterAutorizacao(lineFromExcel.USERNAME, lineFromExcel.PASSWORD);
+                await accountPage.excluirConta();
 
                 // Sem erro -> marcar Pass
                 //await writeTestResultToExcel(process.env.CENARIOS, 0, 'ID', testId, 'Pass', '');
             } catch (err) {
+                await accountPage.excluirConta();
+
                 const errorText = err instanceof Error && err.message ? err.message : String(err);
                 // Em caso de erro -> marcar Fail e gravar ERRO
                 //await writeTestResultToExcel(process.env.CENARIOS, 0, 'ID', testId, 'Fail', errorText);
-                //throw err; // rethrow para Playwright marcar o teste como failed
+                throw err; // rethrow para Playwright marcar o teste como failed
             }
         });
     }

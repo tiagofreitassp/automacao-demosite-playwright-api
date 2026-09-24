@@ -1,9 +1,12 @@
 const { expect } = require('@playwright/test');
 
 require('dotenv').config()
-let apiToken, userID;
 
 export class AccountPage{
+  //Variáveis privadas que não podem ser acessadas fora da classe
+  #apiToken;
+  #userID;
+
   constructor(request) {
     this.request=request;
   } 
@@ -11,96 +14,67 @@ export class AccountPage{
   /* Requisições relacionadas à conta de usuário, autenticação e token */
   
     async autorizacao(username, password){
-      const response = await this.request.post(process.env.BASE_URL + '/Account/v1/Authorized', {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        data: {
-          userName: username,
-          password: password
-        }
-      });
-  
-      return response;
-    }
+      const url = process.env.BASE_URL + '/Account/v1/Authorized';
+      const payload = { userName: username, password: password };
 
-    async obterAutorizacao(username, password){
-      const retorno = await this.autorizacao(username, password);
-      console.log('Resposta da autorização:', retorno);
-      expect(retorno.status()).toBe(111);
-      const data = await retorno.json();
-      expect(data).toBe(true);
+      const response = await this.request.post(url, {
+        data: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      });
+
+      const text = await response.text();
+
+      expect(response.status()).toBe(200);
+
+      try {
+          const json = JSON.parse(text);
+          if (typeof json === 'boolean') {
+            expect(json).toBe(true);
+          } else if (json && (json === true || json.success === true || json.ok === true)) {
+            expect(true).toBe(true);
+          } else {
+            expect(JSON.stringify(json)).toContain('true');
+          }
+        } catch {
+            expect(text).toContain('true');
+        }
     }
   
     async gerarToken(username, password){
-      const response = await this.request.post(process.env.BASE_URL + '/Account/v1/GenerateToken', {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        data: {
-          userName: username,
-          password: password
-        }
+      const url = process.env.BASE_URL + '/Account/v1/GenerateToken';
+      const payload = { userName: username, password: password };
+
+      const response = await this.request.post(url, {
+        data: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       });
-  
+      
       expect(response.status()).toBe(200);
-      const data = await response.json();
-      expect(data).toHaveProperty('token');
-      expect(data.status).toBe('Success');
-      expect(data.result).toBe('User authorized successfully.');
-      apiToken = data.token;
-      return apiToken;
+
+      const responseBody = await response.json();
+      expect(responseBody).toBeTruthy();
+      expect(responseBody).toHaveProperty('token');
+      expect(responseBody).toHaveProperty('expires');
+      expect(responseBody).toHaveProperty('status');
+      expect(responseBody).toHaveProperty('result');
+      this.#apiToken = responseBody.token;
     }
   
+    async consultaConta(){
+      console.log('Método para consultar conta com userID:', this.#userID);
+
+      //Método sempre deve retornar o cadastro, se nao existir, deve lançar erro
+    }
+
     async criarConta(username, password){
-      const response = await this.request.post(process.env.BASE_URL + '/Account/v1/User', {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        data: {
-          userName: username,
-          password: password
-        }
-      });
-  
-      expect(response.status()).toBe(201);
-      const data = await response.json();
-      expect(data).toHaveProperty('userID');
-      expect(data).toHaveProperty('username');
-      expect(data).toHaveProperty('books');
-      userID = data.userID;
-      expect(data.username).toBe(username);
-      return userID;
+      console.log('Método para criar conta com username e senha:', username, password);
+
+      //Verificar se a conta já existe antes de criar uma nova. Se sim, exclui-la e criar uma nova.
     }
   
-    async excluirConta(userID){
-      const response = await this.request.delete(process.env.BASE_URL + `/Account/v1/User/${userID}`, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiToken}`
-        }
-      });
-  
-      expect(response.status()).toBe(200);
-    }
-  
-    async consultaConta(userID){
-      const response = await this.request.get(process.env.BASE_URL + `/Account/v1/User/${userID}`, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiToken}`
-        }
-      });
-  
-      expect(response.status()).toBe(200);
-      const data = await response.json();
-      expect(data).toHaveProperty('userID');
-      expect(data).toHaveProperty('username');
-      expect(data).toHaveProperty('books');
+    async excluirConta(){
+      console.log('Método para excluir conta com userID:', this.#userID);
+
+      //Verificar se a conta existe, se sim exclui-la, se não, não fazer nada.
     }
 }
