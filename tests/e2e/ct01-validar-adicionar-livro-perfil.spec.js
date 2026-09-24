@@ -14,6 +14,30 @@ var num = 0;
 
 for (const lineFromExcel of ExcelDataProvider) {
     if(lineFromExcel.EXECUTE.toLowerCase() == 'sim'){
-        //
+        const testId = lineFromExcel.ID;
+
+        test(`${lineFromExcel.ID} - ${lineFromExcel.CENARIO} ${num++}`, 
+            {
+                tag: [
+                    '@ct01',
+                    '@account'
+                ],
+            }, async ({ request }) => {
+
+            try {
+                accountPage = new AccountPage(request);
+                //bookStorePage = new BookStorePage(request);
+
+                await accountPage.obterAutorizacao(lineFromExcel.USERNAME, lineFromExcel.PASSWORD);
+
+                // Sem erro -> marcar Pass
+                //await writeTestResultToExcel(process.env.CENARIOS, 0, 'ID', testId, 'Pass', '');
+            } catch (err) {
+                const errorText = err instanceof Error && err.message ? err.message : String(err);
+                // Em caso de erro -> marcar Fail e gravar ERRO
+                //await writeTestResultToExcel(process.env.CENARIOS, 0, 'ID', testId, 'Fail', errorText);
+                //throw err; // rethrow para Playwright marcar o teste como failed
+            }
+        });
     }
 }

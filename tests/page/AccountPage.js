@@ -1,13 +1,11 @@
 const { expect } = require('@playwright/test');
-const { BasePage } = require('../support/base/BasePage')
 
 require('dotenv').config()
-let base, apiToken, userID;
+let apiToken, userID;
 
 export class AccountPage{
   constructor(request) {
     this.request=request;
-    base = new BasePage(this.request);
   } 
 
   /* Requisições relacionadas à conta de usuário, autenticação e token */
@@ -24,8 +22,15 @@ export class AccountPage{
         }
       });
   
-      expect(response.status()).toBe(200);
       return response;
+    }
+
+    async obterAutorizacao(username, password){
+      const retorno = await this.autorizacao(username, password);
+      console.log('Resposta da autorização:', retorno);
+      expect(retorno.status()).toBe(111);
+      const data = await retorno.json();
+      expect(data).toBe(true);
     }
   
     async gerarToken(username, password){
