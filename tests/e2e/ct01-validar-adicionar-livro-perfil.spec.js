@@ -26,15 +26,16 @@ for (const lineFromExcel of ExcelDataProvider) {
 
             try {
                 accountPage = new AccountPage(request);
-                await accountPage.criarConta(lineFromExcel.USERNAME, lineFromExcel.PASSWORD);
+                await accountPage.criarCadastro(lineFromExcel.USERNAME, lineFromExcel.PASSWORD);
+                await accountPage.autorizacao(lineFromExcel.USERNAME, lineFromExcel.PASSWORD);
+                await accountPage.gerarToken(lineFromExcel.USERNAME, lineFromExcel.PASSWORD);
                 await accountPage.consultaConta();
-
-                await accountPage.excluirConta();
+                await accountPage.excluirCadastro();
 
                 // Sem erro -> marcar Pass
                 //await writeTestResultToExcel(process.env.CENARIOS, 0, 'ID', testId, 'Pass', '');
             } catch (err) {
-                await accountPage.excluirConta();
+                await accountPage.excluirCadastro();
 
                 const errorText = err instanceof Error && err.message ? err.message : String(err);
                 // Em caso de erro -> marcar Fail e gravar ERRO

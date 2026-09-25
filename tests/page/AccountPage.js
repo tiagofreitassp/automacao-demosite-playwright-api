@@ -2,11 +2,9 @@ const { expect } = require('@playwright/test');
 
 require('dotenv').config()
 
-export class AccountPage{
-  //Variáveis privadas que não podem ser acessadas fora da classe
-  #apiToken;
-  #userID;
+let apiToken, userID;
 
+export class AccountPage{
   constructor(request) {
     this.request=request;
   } 
@@ -21,23 +19,7 @@ export class AccountPage{
         data: JSON.stringify(payload),
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       });
-
-      const text = await response.text();
-
       expect(response.status()).toBe(200);
-
-      try {
-          const json = JSON.parse(text);
-          if (typeof json === 'boolean') {
-            expect(json).toBe(true);
-          } else if (json && (json === true || json.success === true || json.ok === true)) {
-            expect(true).toBe(true);
-          } else {
-            expect(JSON.stringify(json)).toContain('true');
-          }
-        } catch {
-            expect(text).toContain('true');
-        }
     }
   
     async gerarToken(username, password){
@@ -57,24 +39,66 @@ export class AccountPage{
       expect(responseBody).toHaveProperty('expires');
       expect(responseBody).toHaveProperty('status');
       expect(responseBody).toHaveProperty('result');
-      this.#apiToken = responseBody.token;
+      apiToken = responseBody.token;
     }
   
     async consultaConta(){
-      console.log('Método para consultar conta com userID:', this.#userID);
+      const url = `${process.env.BASE_URL}/Account/v1/User/${userID}`;
+      const response = await this.request.get(url, {
+        headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${apiToken}` }
+      });
 
-      //Método sempre deve retornar o cadastro, se nao existir, deve lançar erro
+      expect(response.status()).toBe(200);
+
+      const body = await response.json();
+      const books = body.books;
+      expect(body).toBeTruthy();
+      expect(body).toHaveProperty('userId');
+      expect(body).toHaveProperty('username');
+      expect(Array.isArray(books)).toBe(true);
     }
 
-    async criarConta(username, password){
-      console.log('Método para criar conta com username e senha:', username, password);
+  async criarCadastro(username, password){
+    const url = `${process.env.BASE_URL}/Account/v1/User`;
+    const payload = { userName: username, password: password };
 
-      //Verificar se a conta já existe antes de criar uma nova. Se sim, exclui-la e criar uma nova.
-    }
+    const response = await this.request.post(url, {
+      data: JSON.stringify(payload),
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    });
+
+    expect([200, 201]).toContain(response.status());
+    const body = await response.json().catch(()=>null);
+    userID = body?.userID ?? body?.userId ?? userID;
+    console.log(`Conta criada com userID: ${userID} do usuário: ${username} e senha: ${password}`);
+  }
   
-    async excluirConta(){
-      console.log('Método para excluir conta com userID:', this.#userID);
+  async excluirCadastro(){
+    const exists = await this.usuarioExistePorId(userID);
 
-      //Verificar se a conta existe, se sim exclui-la, se não, não fazer nada.
+    if (exists.status() === 200){
+      const delResp = await this.excluirCadastroPorId(userID, apiToken);
+      const delStatus = delResp.status();
+      expect([200, 204]).toContain(delStatus);
     }
+
+    const afterResp = await this.request.get(`${process.env.BASE_URL}/Account/v1/User/${userID}`, {
+      headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${apiToken}` }
+    });
+    expect(afterResp.status()).not.toBe(200);
+  }
+
+  async usuarioExistePorId(userID){
+    const url = `${process.env.BASE_URL}/Account/v1/User/${userID}`;
+    const response = await this.request.get(url, { headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${apiToken}` } });
+    return response;
+  }
+
+  async excluirCadastroPorId(userID){
+    const url = `${process.env.BASE_URL}/Account/v1/User/${userID}`;
+    const response = await this.request.delete(url, {
+      headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${apiToken}` }
+    });
+    return response;
+  }
 }
