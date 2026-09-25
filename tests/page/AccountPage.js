@@ -9,6 +9,13 @@ export class AccountPage{
   } 
 
   /* Requisições relacionadas à conta de usuário, autenticação e token */
+
+  async account(username, password){
+    await this.criarCadastro(username, password);
+    await this.autorizacao(username, password);
+    await this.gerarToken(username, password);
+    await this.consultaConta();
+  }
   
   async autorizacao(username, password){
     const url = process.env.BASE_URL + '/Account/v1/Authorized';

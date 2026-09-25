@@ -26,12 +26,40 @@ for (const lineFromExcel of ExcelDataProvider) {
 
             try {
                 accountPage = new AccountPage(request);
-                await accountPage.criarCadastro(lineFromExcel.USERNAME, lineFromExcel.PASSWORD);
-                await accountPage.autorizacao(lineFromExcel.USERNAME, lineFromExcel.PASSWORD);
-                await accountPage.gerarToken(lineFromExcel.USERNAME, lineFromExcel.PASSWORD);
-                await accountPage.consultaConta();
-                await accountPage.excluirCadastro();
+                bookStorePage = new BookStorePage(request);
 
+                //Realizar cadastro e autenticação do usuário
+                await accountPage.account(lineFromExcel.USERNAME, lineFromExcel.PASSWORD);
+
+                //Verificar se o livro está presente no banco de dados antes de adicioná-lo à coleção do usuário
+                await bookStorePage.consultarDadosDoLivro(
+                    lineFromExcel.ISBN, 
+                    lineFromExcel.TITLE, 
+                    lineFromExcel.SUBTITLE,
+                    lineFromExcel.AUTHOR, 
+                    lineFromExcel.PUBLISHER,
+                    lineFromExcel.TOTAL_PAGES,
+                    lineFromExcel.DESCRIPTION,
+                    lineFromExcel.WEBSITE);
+
+                //Adicionar o livro à coleção do usuário
+                await bookStorePage.adicionarLivroColecao(lineFromExcel.ISBN);
+
+                //Consultar se livro esta na coleção
+                await bookStorePage.consultarLivro(
+                    lineFromExcel.ISBN, 
+                    lineFromExcel.TITLE, 
+                    lineFromExcel.SUBTITLE,
+                    lineFromExcel.AUTHOR, 
+                    lineFromExcel.PUBLISHER,
+                    lineFromExcel.TOTAL_PAGES,
+                    lineFromExcel.DESCRIPTION,
+                    lineFromExcel.WEBSITE);
+
+                //Excluir livro da coleção do usuário
+                await bookStorePage.removerLivro(lineFromExcel.USERNAME, lineFromExcel.ISBN);
+
+                await accountPage.excluirCadastro();
                 // Sem erro -> marcar Pass
                 //await writeTestResultToExcel(process.env.CENARIOS, 0, 'ID', testId, 'Pass', '');
             } catch (err) {
