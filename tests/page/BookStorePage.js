@@ -38,24 +38,27 @@ export class BookStorePage extends AccountPage{
   }
 
   async removerTodosOsLivros(){
-    const url = `${process.env.BASE_URL}/BookStore/v1/Books`;
-    const payload = { userId: SessionStore.getUserID() };
-
+    const url = `${process.env.BASE_URL}/BookStore/v1/Books?${SessionStore.getUserID()}`;
+    
     const response = await this.request.delete(url, {
-      data: JSON.stringify(payload),
       headers: { 
-        'Content-Type': 'application/json', 
-        'Accept': 'application/json', 
+        'accept': 'application/json', 
         'Authorization': `Bearer ${SessionStore.getApiToken()}` 
       }
     });
+
+    console.log('CRIAÇÃO - URL:', url);
+    console.log('CRIAÇÃO - Status:', response.status());
+    console.log('CRIAÇÃO - Headers:', response.headers());
+    const text = await response.text().catch(()=>'<no-body>');
+    console.log('CRIAÇÃO - Body:', text);
+
     expect(response.status()).toBe(204);
     console.log(`Todos os livros removidos da coleção do usuário: ${JSON.stringify(payload)}`);
   }
 
   async consultarLivro(isbn, title,subtitle,author,publisher,pages, description,website){
-    const valorISBN = String(isbn); 
-    const valorPAGES = String(pages); 
+    const valorISBN = String(isbn);  
     const url = `${process.env.BASE_URL}/BookStore/v1/Book?ISBN=${valorISBN}`;
     const response = await this.request.get(url, {
       headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${SessionStore.getApiToken()}` }
@@ -68,7 +71,7 @@ export class BookStorePage extends AccountPage{
     //expect(body).toHaveProperty('subTitle', subtitle);
     expect(body).toHaveProperty('author', author);
     expect(body).toHaveProperty('publisher', publisher);
-    expect(body).toHaveProperty('pages', valorPAGES);
+    expect(body).toHaveProperty('pages', pages);
     expect(body).toHaveProperty('description', description);
     //expect(body).toHaveProperty('website', website);
     console.log(`Livro consultado: ${JSON.stringify(body)}`);
@@ -91,19 +94,21 @@ export class BookStorePage extends AccountPage{
     console.log(`Livro removido da coleção do usuário: ${JSON.stringify(payload)}`);
   }
 
-  async atualizarLivro(isbn){
-    const valorISBN = String(isbn); 
-    const url = `${process.env.BASE_URL}/BookStore/v1/Books ${isbn}`;
-    const payload = { userId: SessionStore.getUserID(), collectionOfIsbns: [{ isbn: valorISBN }] };
+  async atualizarLivro(oldISBN,newISBN){
+    const valorOldISBN = String(oldISBN); 
+    const valorNewISBN = String(newISBN); 
+    const url = `${process.env.BASE_URL}/BookStore/v1/Books/${valorOldISBN}`;
+    const payload = { userId: SessionStore.getUserID(), isbn: valorNewISBN  };
 
     const response = await this.request.put(url, {
       data: JSON.stringify(payload),
       headers: { 
         'Content-Type': 'application/json', 
-        'Accept': 'application/json', 
+        'accept': 'application/json', 
         'Authorization': `Bearer ${SessionStore.getApiToken()}` 
       }
     });
+
     expect(response.status()).toBe(200);
     console.log(`Livro atualizado na coleção do usuário: ${JSON.stringify(payload)}`);
   }

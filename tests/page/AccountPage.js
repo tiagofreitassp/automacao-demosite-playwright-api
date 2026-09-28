@@ -54,7 +54,11 @@ export class AccountPage{
   async consultaConta(){
     const url = `${process.env.BASE_URL}/Account/v1/User/${SessionStore.getUserID()}`;
     const response = await this.request.get(url, {
-      headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${SessionStore.getApiToken()}` }
+      headers: { 
+        'Content-Type': 'application/json', 
+        'Accept': 'application/json', 
+        'Authorization': `Bearer ${SessionStore.getApiToken()}` 
+      }
     });
 
     expect(response.status()).toBe(200);
@@ -74,7 +78,10 @@ export class AccountPage{
 
     const response = await this.request.post(url, {
       data: JSON.stringify(payload),
-      headers: { 'Content-Type': 'application/json', '*/*': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json', 
+        'accept': 'application/json'
+      }
     });
 
     expect(response.status()).toBe(201);
@@ -104,7 +111,7 @@ export class AccountPage{
     const response = await this.request.get(url, { 
       headers: { 
         'Content-Type': 'application/json',
-        '*/*': 'application/json', 
+        'Accept': 'application/json', 
         'Authorization': `Bearer ${SessionStore.getApiToken()}` 
       } });
     return response;

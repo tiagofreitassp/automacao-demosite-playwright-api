@@ -46,7 +46,7 @@ for (const lineFromExcel of ExcelDataProvider) {
                     lineFromExcel.WEBSITE);
 
                 //Atualizar o livro na coleção do usuário
-                await bookStorePage.atualizarLivro(lineFromExcel.NEW_ISBN);
+                await bookStorePage.atualizarLivro(lineFromExcel.ISBN,lineFromExcel.NEW_ISBN);
 
                 //Consultar se livro esta na coleção
                 await bookStorePage.consultarLivro(
