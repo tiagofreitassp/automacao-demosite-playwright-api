@@ -31,17 +31,6 @@ for (const lineFromExcel of ExcelDataProvider) {
                 //Realizar cadastro e autenticação do usuário
                 await accountPage.account(lineFromExcel.USERNAME, lineFromExcel.PASSWORD);
 
-                //Verificar se o livro está presente no banco de dados antes de adicioná-lo à coleção do usuário
-                await bookStorePage.consultarDadosDoLivro(
-                    lineFromExcel.ISBN, 
-                    lineFromExcel.TITLE, 
-                    lineFromExcel.SUBTITLE,
-                    lineFromExcel.AUTHOR, 
-                    lineFromExcel.PUBLISHER,
-                    lineFromExcel.TOTAL_PAGES,
-                    lineFromExcel.DESCRIPTION,
-                    lineFromExcel.WEBSITE);
-
                 //Adicionar o livro à coleção do usuário
                 await bookStorePage.adicionarLivroColecao(lineFromExcel.ISBN);
 
@@ -52,15 +41,15 @@ for (const lineFromExcel of ExcelDataProvider) {
                     lineFromExcel.SUBTITLE,
                     lineFromExcel.AUTHOR, 
                     lineFromExcel.PUBLISHER,
-                    lineFromExcel.TOTAL_PAGES,
+                    lineFromExcel.PAGES,
                     lineFromExcel.DESCRIPTION,
                     lineFromExcel.WEBSITE);
 
                 //Excluir livro da coleção do usuário
-                await bookStorePage.removerLivro(lineFromExcel.USERNAME, lineFromExcel.ISBN);
+                await bookStorePage.removerLivro(lineFromExcel.ISBN);
 
                 await accountPage.excluirCadastro();
-                // Sem erro -> marcar Pass
+                //Se não ocorrer erro, registrar que o teste passou escrevendo Pass
                 //await writeTestResultToExcel(process.env.CENARIOS, 0, 'ID', testId, 'Pass', '');
             } catch (err) {
                 await accountPage.excluirCadastro();
