@@ -59,6 +59,8 @@ Executar todos os testes:
 Executar um teste especifico:
 
 * npx playwright test example.spec.js
+* npx playwright test ct01-validar-adicionar-livro-perfil.spec.js
+* npx playwright test ct02-confirmar-atualizar-livro.spec.js
 
 ## Execuções com falhas
 

@@ -74,10 +74,10 @@ export class AccountPage{
 
     const response = await this.request.post(url, {
       data: JSON.stringify(payload),
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      headers: { 'Content-Type': 'application/json', '*/*': 'application/json' },
     });
 
-    expect([200, 201]).toContain(response.status());
+    expect(response.status()).toBe(201);
     const body = await response.json().catch(()=>null);
     SessionStore.setUserID(body?.userID ?? body?.userId ?? SessionStore.getUserID());
     console.log(`Conta criada com o userID: ${SessionStore.getUserID()} do usuário: ${username}`);
@@ -102,8 +102,11 @@ export class AccountPage{
   async usuarioExistePorId(userID){
     const url = `${process.env.BASE_URL}/Account/v1/User/${userID}`;
     const response = await this.request.get(url, { 
-      headers: { 'Accept': 'application/json', 
-        'Authorization': `Bearer ${SessionStore.getApiToken()}` } });
+      headers: { 
+        'Content-Type': 'application/json',
+        '*/*': 'application/json', 
+        'Authorization': `Bearer ${SessionStore.getApiToken()}` 
+      } });
     return response;
   }
 

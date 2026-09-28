@@ -21,8 +21,9 @@ export class BookStorePage extends AccountPage{
   }
 
   async adicionarLivroColecao(isbn){
+    const valorISBN = String(isbn); 
     const url = `${process.env.BASE_URL}/BookStore/v1/Books`;
-    const payload = { userId: SessionStore.getUserID(), collectionOfIsbns: [{ isbn }] };
+    const payload = { userId: SessionStore.getUserID(), collectionOfIsbns: [{ isbn: valorISBN }] };
 
     const response = await this.request.post(url, {
       data: JSON.stringify(payload),
@@ -48,32 +49,35 @@ export class BookStorePage extends AccountPage{
         'Authorization': `Bearer ${SessionStore.getApiToken()}` 
       }
     });
-    expect(response.status()).toBe(200);
+    expect(response.status()).toBe(204);
     console.log(`Todos os livros removidos da coleção do usuário: ${JSON.stringify(payload)}`);
   }
 
   async consultarLivro(isbn, title,subtitle,author,publisher,pages, description,website){
-    const url = `${process.env.BASE_URL}/BookStore/v1/Book?ISBN=${isbn}`;
+    const valorISBN = String(isbn); 
+    const valorPAGES = String(pages); 
+    const url = `${process.env.BASE_URL}/BookStore/v1/Book?ISBN=${valorISBN}`;
     const response = await this.request.get(url, {
       headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${SessionStore.getApiToken()}` }
     });
     expect(response.status()).toBe(200);
     const body = await response.json();
     expect(body).toBeTruthy();
-    expect(body).toHaveProperty('isbn', isbn);
+    expect(body).toHaveProperty('isbn', valorISBN);
     expect(body).toHaveProperty('title', title);
     //expect(body).toHaveProperty('subTitle', subtitle);
     expect(body).toHaveProperty('author', author);
     expect(body).toHaveProperty('publisher', publisher);
-    expect(body).toHaveProperty('pages', pages);
+    expect(body).toHaveProperty('pages', valorPAGES);
     expect(body).toHaveProperty('description', description);
     //expect(body).toHaveProperty('website', website);
     console.log(`Livro consultado: ${JSON.stringify(body)}`);
   }
 
   async removerLivro(isbn){
+    const valorISBN = String(isbn); 
     const url = `${process.env.BASE_URL}/BookStore/v1/Book`;
-    const payload = { isbn: isbn, userId: SessionStore.getUserID() };
+    const payload = { isbn: valorISBN, userId: SessionStore.getUserID() };
 
     const response = await this.request.delete(url, {
       data: JSON.stringify(payload),
@@ -88,8 +92,9 @@ export class BookStorePage extends AccountPage{
   }
 
   async atualizarLivro(isbn){
+    const valorISBN = String(isbn); 
     const url = `${process.env.BASE_URL}/BookStore/v1/Books ${isbn}`;
-    const payload = { userId: SessionStore.getUserID(), collectionOfIsbns: [{ isbn }] };
+    const payload = { userId: SessionStore.getUserID(), collectionOfIsbns: [{ isbn: valorISBN }] };
 
     const response = await this.request.put(url, {
       data: JSON.stringify(payload),
