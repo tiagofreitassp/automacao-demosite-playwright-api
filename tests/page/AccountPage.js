@@ -11,44 +11,53 @@ export class AccountPage{
   /* Requisições relacionadas à conta de usuário, autenticação e token */
 
   async account(username, password){
-    await this.criarCadastro(username, password);
-    await this.autorizacao(username, password);
-    await this.gerarToken(username, password);
+    const user = `${username}_${Date.now()}`;
+    console.log(`Criando cadastro para o usuário: ${user} com a senha: ${password}`);
+
+    SessionStore.setUsername(user);
+    SessionStore.setPassword(password);
+
+    await this.criarCadastro();
+    await this.autorizacao();
+    await this.gerarToken();
     await this.consultaConta();
   }
   
-  async autorizacao(username, password){
+  async autorizacao(){
     const url = process.env.BASE_URL + '/Account/v1/Authorized';
-    const payload = { userName: username, password: password };
+    const payload = { userName: SessionStore.getUsername(), password: SessionStore.getPassword() };
 
     const response = await this.request.post(url, {
       data: JSON.stringify(payload),
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      headers: { 'accept': 'application/json','Content-Type': 'application/json' },
     });
     expect(response.status()).toBe(200);
-    console.log(`Autorização bem-sucedida para o usuário: ${username}`);
+    console.log(`Autorização bem-sucedida para o usuário: ${SessionStore.getUsername()}`);
   }
   
-  async gerarToken(username, password){
+  async gerarToken(){
     const url = process.env.BASE_URL + '/Account/v1/GenerateToken';
-    const payload = { userName: username, password: password };
+    const payload = { userName: SessionStore.getUsername(), password: SessionStore.getPassword() };
 
     const response = await this.request.post(url, {
       data: JSON.stringify(payload),
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     });
-      
+
     expect(response.status()).toBe(200);
 
     const responseBody = await response.json();
+    SessionStore.setApiToken(responseBody.token);
+
+    console.log(`Token gerado com sucesso para o usuário: ${SessionStore.getUsername()}`);
+    console.log(`Token original gerado: ${responseBody.token}`);
+    console.log(`Token gerado: ${SessionStore.getApiToken()}`);
+
     expect(responseBody).toBeTruthy();
     expect(responseBody).toHaveProperty('token');
     expect(responseBody).toHaveProperty('expires');
     expect(responseBody).toHaveProperty('status');
     expect(responseBody).toHaveProperty('result');
-    SessionStore.setApiToken(responseBody.token);
-    console.log(`Token gerado com sucesso para o usuário: ${username}`);
-    console.log(`Token gerado: ${SessionStore.getApiToken()}`);
   }
   
   async consultaConta(){
@@ -72,26 +81,27 @@ export class AccountPage{
     expect(Array.isArray(books)).toBe(true);
   }
 
-  async criarCadastro(username, password){
+  async criarCadastro(){
     const url = `${process.env.BASE_URL}/Account/v1/User`;
-    const payload = { userName: username, password: password };
+    const payload = { userName: SessionStore.getUsername(), password: SessionStore.getPassword() };
 
     const response = await this.request.post(url, {
       data: JSON.stringify(payload),
       headers: { 
-        'Content-Type': 'application/json', 
-        'accept': 'application/json'
+        'accept': 'application/json',
+        'Content-Type': 'application/json'
       }
     });
 
     expect(response.status()).toBe(201);
     const body = await response.json().catch(()=>null);
     SessionStore.setUserID(body?.userID ?? body?.userId ?? SessionStore.getUserID());
-    console.log(`Conta criada com o userID: ${SessionStore.getUserID()} do usuário: ${username}`);
+    console.log(`Conta criada com o userID: ${SessionStore.getUserID()} do usuário: ${SessionStore.getUsername()} e senha: ${SessionStore.getPassword()}`);
   }
   
   async excluirCadastro(){
     const exists = await this.usuarioExistePorId(SessionStore.getUserID());
+    console.log(`O userID: ${SessionStore.getUserID()} será excluído.`);
 
     if (exists.status() === 200){
       const delResp = await this.excluirCadastroPorId(SessionStore.getUserID());

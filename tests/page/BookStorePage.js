@@ -38,7 +38,7 @@ export class BookStorePage extends AccountPage{
   }
 
   async removerTodosOsLivros(){
-    const url = `${process.env.BASE_URL}/BookStore/v1/Books?${SessionStore.getUserID()}`;
+    const url = `${process.env.BASE_URL}/BookStore/v1/Books?UserId=${SessionStore.getUserID()}`;
     
     const response = await this.request.delete(url, {
       headers: { 
@@ -47,14 +47,8 @@ export class BookStorePage extends AccountPage{
       }
     });
 
-    console.log('CRIAÇÃO - URL:', url);
-    console.log('CRIAÇÃO - Status:', response.status());
-    console.log('CRIAÇÃO - Headers:', response.headers());
-    const text = await response.text().catch(()=>'<no-body>');
-    console.log('CRIAÇÃO - Body:', text);
-
     expect(response.status()).toBe(204);
-    console.log(`Todos os livros removidos da coleção do usuário: ${JSON.stringify(payload)}`);
+    console.log(`Todos os livros removidos da coleção do usuário: ${JSON.stringify(response)}`);
   }
 
   async consultarLivro(isbn, title,subtitle,author,publisher,pages, description,website){

@@ -50,13 +50,13 @@ for (const lineFromExcel of ExcelDataProvider) {
 
                 await accountPage.excluirCadastro();
                 //Se não ocorrer erro, registrar que o teste passou escrevendo Pass
-                //await writeTestResultToExcel(process.env.CENARIOS, 0, 'ID', testId, 'Pass', '');
+                await writeTestResultToExcel(process.env.CENARIOS, 0, 'ID', testId, 'Pass', '');
             } catch (err) {
                 await accountPage.excluirCadastro();
 
                 const errorText = err instanceof Error && err.message ? err.message : String(err);
                 // Em caso de erro -> marcar Fail e gravar ERRO
-                //await writeTestResultToExcel(process.env.CENARIOS, 0, 'ID', testId, 'Fail', errorText);
+                await writeTestResultToExcel(process.env.CENARIOS, 0, 'ID', testId, 'Fail', errorText);
                 throw err; // rethrow para Playwright marcar o teste como failed
             }
         });
